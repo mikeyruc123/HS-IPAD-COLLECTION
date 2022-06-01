@@ -1,1 +1,3 @@
 # HS-IPAD-COLLECTION
+
+Uses Flask
