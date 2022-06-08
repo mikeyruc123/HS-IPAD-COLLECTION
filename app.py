@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, session, request, g
-import secrets, sqlite3
+import secrets, sqlite3, tokenize
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex() #change out later
@@ -56,13 +56,42 @@ def dashboard():
 def ipad_list():
     return render_template("temp.html")
 
-@app.route("/student<int(min=0, max=65535):id>") #check credentials first and if student exists; return login page or invalid student page
+@app.route("/student<int(min=0, max=65535):id>", methods=['GET', 'POST']) #check credentials first and if student exists; return login page or invalid student page
 def student_id(id):
-    if check_cred():
+    if request.method == "GET":
+        if check_cred():
+            cur = get_db().cursor()
+            cur.execute(f"SELECT * FROM students WHERE id = {id}")
+            name = cur.fetchall()
+            name = name[0]
+            return render_template("studentid.html", var_id=id, var_name=name[1], var_returned=name[2], var_cracked=name[3], var_charger=name[4])
+        else:
+            return redirect("/login")
+    elif request.method == "POST":
         cur = get_db().cursor()
-        return render_template("studentid.html", var_id=cur.execute("SELECT * FROM students"))
-    else:
-        return redirect("/login")
+        if request.form.get("var_name") is not "":
+            cur.execute(f"UPDATE students SET name = '{request.form['var_name']}' WHERE id = '{id}'")
+
+        if request.form.get("var_returned") is not None:
+            cur.execute(f"UPDATE students SET returned = {request.form['var_returned']} WHERE id = '{id}'")
+        else:
+            cur.execute(f"UPDATE students SET returned = 0 WHERE id = '{id}'")
+
+        if request.form.get("var_cracked") is not None:
+            cur.execute(f"UPDATE students SET cracked = {request.form['var_cracked']} WHERE id = '{id}'")
+        else:
+            cur.execute(f"UPDATE students SET cracked = 0 WHERE id = '{id}'")
+
+        if request.form.get("var_charger") is not None:
+            cur.execute(f"UPDATE students SET charger = {request.form['var_charger']} WHERE id = '{id}'")
+        else:
+            cur.execute(f"UPDATE students SET charger = 0 WHERE id = '{id}'")
+
+        get_db().commit()
+        cur.execute(f"SELECT * FROM students WHERE id = {id}")
+        name = cur.fetchall()
+        name = name[0]
+        return render_template("studentid.html", var_id=id, var_name=name[1], var_returned=name[2], var_cracked=name[3], var_charger=name[4])
 
 #@app.route("/<route>") #catch all; redirects any invalid routes to the root
 #def catch_all(route):

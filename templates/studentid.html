@@ -1,4 +1,17 @@
-<p>Hello Student {{ var_id }}</p>
+<p>Hello Student {{ var_id }}</p><br>
+<p>Name: {{ var_name}}</p><br>
+<p>Returned: {{ var_returned }}, Cracked: {{ var_cracked }}, Charger: {{ var_charger }}</p>
+<form action="/student{{ var_id }}" method="POST">
+    <label for="var_name">Name Change:</label><br>
+    <input type="text" id="var_name" name="var_name"><br>
+    <input type="checkbox" id="var_returned" name="var_returned" value="1">
+    <label for="var_returned">Returned</label><br>
+    <input type="checkbox" id="var_cracked" name="var_cracked" value="1">
+    <label for="var_cracked">Cracked</label><br>
+    <input type="checkbox" id="var_charger" name="var_charger" value="1">
+    <label for="var_charger">Charger</label><br>
+    <input type="submit" value="Save">
+</form>
 <form action="/dashboard">
     <input type="submit" id="dashboard" value="Back to Dashboard">
 </form>
